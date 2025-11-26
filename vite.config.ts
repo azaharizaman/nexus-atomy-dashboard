@@ -12,6 +12,8 @@ export default defineConfig(({ mode }) => {
       preview: {
         port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
         host: '0.0.0.0',
+        strictPort: true,
+        allowedHosts: ['nexus-atomy-dashboard-production.up.railway.app', '.railway.app', 'nexusnv.net', '.nexusnv.net'],
       },
       plugins: [react()],
       define: {
