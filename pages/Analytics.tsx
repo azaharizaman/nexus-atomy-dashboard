@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { PACKAGES } from '../data';
 import { 
   ResponsiveContainer, 
@@ -22,15 +22,9 @@ import {
   ComposedChart,
   Line
 } from 'recharts';
-import { Activity, FileText, AlertTriangle, Layers, Sparkles, Send, Bot, TrendingUp, DollarSign } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
+import { Activity, FileText, AlertTriangle, Layers, TrendingUp } from 'lucide-react';
 
 const Analytics: React.FC = () => {
-  // --- AI Chat State ---
-  const [query, setQuery] = useState('');
-  const [response, setResponse] = useState('');
-  const [loading, setLoading] = useState(false);
-
   // --- Data Prep for Scatter Plot (Complexity vs Docs) ---
   const scatterData = PACKAGES.map(p => ({
     name: p.name,
@@ -95,48 +89,6 @@ const Analytics: React.FC = () => {
   const topTestDensity = testDensityData.slice(0, 5);
   const bottomTestDensity = testDensityData.filter(x => x.loc > 500).slice(-5).reverse(); // Filter out tiny packages
 
-  // --- AI Handler ---
-  const handleAsk = async () => {
-    if (!query.trim()) return;
-    setLoading(true);
-    setResponse('');
-    
-    try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        
-        const context = `
-            You are a Data Analyst for the Nexus ERP Framework.
-            Analyze the following dataset to answer the user's question.
-            
-            Dataset Summary:
-            - Total Packages: ${PACKAGES.length}
-            - Vertical Performance: ${JSON.stringify(radarData)}
-            - Cost Efficiency Data (Sample): ${JSON.stringify(costEfficiencyData.slice(0, 5))}
-            - Tier Maturity: ${JSON.stringify(tierData)}
-            
-            Key Insights:
-            - Most Expensive Dev Cost: ${JSON.stringify(PACKAGES.sort((a,b) => b.devCost - a.devCost)[0])}
-            - Highest ROI: ${JSON.stringify(PACKAGES.sort((a,b) => b.roi - a.roi)[0])}
-            - Lowest Test Density: ${JSON.stringify(bottomTestDensity[0])}
-        `;
-
-        const result = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-lite',
-            contents: `Context: ${context}\n\nUser Question: ${query}\n\nProvide a data-driven answer in 2-3 sentences.`,
-        });
-        setResponse(result.text || "No response generated.");
-    } catch (error) {
-        console.error(error);
-        setResponse("Sorry, I encountered an error connecting to the AI service.");
-    } finally {
-        setLoading(false);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleAsk();
-  };
-
   // Custom Tooltip for Scatter
   const CustomScatterTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -165,47 +117,6 @@ const Analytics: React.FC = () => {
             <h2 className="text-2xl font-bold text-white">System Analytics</h2>
             <p className="text-zinc-400 text-sm mt-1">Deep dive into code quality, architectural balance, and vertical maturity.</p>
         </div>
-      </div>
-
-      {/* AI Data Analyst */}
-      <div className="bg-zinc-900/30 border border-border rounded-xl p-1 shadow-sm">
-         <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Sparkles className={`h-5 w-5 transition-colors ${loading ? 'text-primary animate-pulse' : 'text-zinc-500 group-focus-within:text-primary'}`} />
-            </div>
-            <input
-                type="text"
-                className="block w-full pl-11 pr-12 py-3 border border-transparent rounded-lg leading-5 bg-transparent text-zinc-200 placeholder-zinc-500 focus:outline-none focus:bg-zinc-900 focus:border-zinc-800 transition-all"
-                placeholder="Ask AI Analyst (e.g., 'Which vertical has the best ROI?', 'Show me underperforming packages')"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={loading}
-            />
-            <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
-                <button 
-                  onClick={handleAsk} 
-                  disabled={loading || !query.trim()} 
-                  className="p-2 text-zinc-500 hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                    {loading ? (
-                        <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
-                    ) : (
-                        <Send size={18} />
-                    )}
-                </button>
-            </div>
-        </div>
-        {response && (
-            <div className="mx-2 mb-2 p-4 bg-zinc-950/50 border-t border-zinc-800 rounded-b-lg flex gap-3 animate-fade-in">
-                <div className="shrink-0 w-6 h-6 rounded bg-primary/20 flex items-center justify-center text-primary mt-0.5">
-                    <Bot size={14} />
-                </div>
-                <div className="space-y-1">
-                    <p className="text-zinc-200 text-sm leading-relaxed">{response}</p>
-                </div>
-            </div>
-        )}
       </div>
 
       {/* Row 1: Investment Efficiency (New) */}
