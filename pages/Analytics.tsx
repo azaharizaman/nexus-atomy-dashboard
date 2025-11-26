@@ -310,7 +310,7 @@ const Analytics: React.FC = () => {
          <div>
             <h4 className="text-white font-bold mb-1">Architecture Insight</h4>
             <p className="text-zinc-400 text-sm leading-relaxed">
-              <strong>Nexus\Procurement</strong> and <strong>Nexus\Budget</strong> show high complexity (LOC > 5k) but lower document ratios compared to the platform average. 
+              <strong>Nexus\Procurement</strong> and <strong>Nexus\Budget</strong> show high complexity (LOC &gt; 5k) but lower document ratios compared to the platform average. 
               Prioritize documentation for these packages to reduce "Bus Factor" risk. Conversely, the <strong>Infrastructure</strong> vertical maintains the healthiest test density, 
               providing a stable foundation for the Tier 3 business packages.
             </p>
